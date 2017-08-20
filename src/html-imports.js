@@ -48,6 +48,7 @@
   const CSS_URL_REGEXP = /(url\()([^)]*)(\))/g;
   const CSS_IMPORT_REGEXP = /(@import[\s]+(?!url\())([^;]*)(;)/g;
   const STYLESHEET_REGEXP = /(<link[^>]*)(rel=['|"]?stylesheet['|"]?[^>]*>)/g;
+  const ES6_IMPORT_REGEXP = /(import\s[^'"]*)(['"][^'"]*['"])(\s*\n)/g;
 
   // path fixup: style elements in imports must be made relative to the main
   // document. We fixup url's in url() and @import.
@@ -65,6 +66,9 @@
       if (element.localName === 'style') {
         const r = Path.replaceUrls(element.textContent, base, CSS_URL_REGEXP);
         element.textContent = Path.replaceUrls(r, base, CSS_IMPORT_REGEXP);
+      }
+      if (element.localName === 'script') {
+        element.textContent = Path.replaceUrls(element.textContent, base, ES6_IMPORT_REGEXP);
       }
     },
 
@@ -183,7 +187,8 @@
   const importDependenciesSelector = `${importSelector}, ${disabledLinkSelector},
     style:not([type]), link[rel=stylesheet][href]:not([type]),
     script:not([type]), script[type="application/javascript"],
-    script[type="text/javascript"]`;
+    script[type="text/javascript"],
+    script[type="module"]`;
 
   const importDependencyAttr = 'import-dependency';
 
